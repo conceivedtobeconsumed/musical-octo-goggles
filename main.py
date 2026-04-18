@@ -75,7 +75,7 @@ def _handle_item(player: Character, entered_room: Room) -> tuple:
     print()
     print(f"Do you want to add {entered_room.item} to your inventory?")
     choice = input("Yes/No: ").lower().strip()
-    if choice not in ["yes", "no"]:
+    while choice not in ["yes", "no"]:
         print(f"Invalid choice. Try again.")
         choice = input("Yes/No: ").lower().strip()
     if choice == "yes":
