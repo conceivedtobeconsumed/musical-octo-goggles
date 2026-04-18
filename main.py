@@ -2,6 +2,27 @@ import sys
 from game.room import Room
 from game.character import Character
 
+def _stats(player: Character, location: Room, next_move: str) -> None:
+    """
+            Displays the player's current status including name, room,
+            move direction, and inventory.
+
+            Args:
+                player (Character): The player whose status is displayed.
+                location (Room): The room where the player is currently located.
+                next_move (str): The direction the player is moving or has chosen.
+
+            Returns:
+                None
+
+            """
+    print("==" * 30)
+    print(f"{player.name}, of the Great Council")
+    print("--" * 30)
+    print(f"Current Room: {location.name.capitalize()} || Move's Direction: {next_move}")
+    print(f"Inventory: {player.inventory}")
+    print("==" * 30)
+    return None
 
 def _handle_dragon(player: Character, game_board: dict) -> tuple:
     """
@@ -47,7 +68,11 @@ def _handle_item(player: Character, entered_room: Room) -> tuple:
                 tuple: A tuple of (player, entered_room) where player is the
                 updated Character and entered_room is the updated Room.
             """
-    print(f"You found an item! It appears to be {entered_room.item}.")
+    print("**" * 30)
+    print(f"You found an item! It appears to be {entered_room.item.upper()}.")
+    print("**" * 30)
+    print("**" * 30)
+    print()
     print(f"Do you want to add {entered_room.item} to your inventory?")
     choice = input("Yes/No: ").lower().strip()
     if choice not in ["yes", "no"]:
@@ -80,8 +105,7 @@ def _move_player(player: Character, location: Room, next_move: str, game_board: 
                       if the direction has no exit.
 
             """
-    print(f"{player.name}, you are currently in the {location.name.capitalize()} and are moving towards the {next_move}.")
-    print(f"Inventory: {player.inventory}")
+    _stats(player, location, next_move)
     if next_move not in location.exits:
         print(f"You look for a door or latch but find only a damp, mossy wall. Try again {player.name}.")
         input("Press Enter to continue...")
@@ -115,16 +139,21 @@ def intro(player: Character) -> Character:
     player.name = input("What is your name brave Dwarf? ").capitalize().strip()
     return player
 
-def player_input(player: Character) -> tuple:
+def player_input(player: Character, location: Room, next_move: str) -> tuple:
     """
         Prompt the player for a directional move and validate the input.
         'exit' as input is accepted to end the game.
+
         Args:
             player (Character): The player whose direction shall be taken.
+            location (Room): The room where the player is currently located.
+            next_move (str): The previous move direction to display in status.
+
         Returns:
             tuple: A tuple representing (player, next_move) where player is Character and next_move is a
             valid direction (north, south, east, or west).
         """
+    _stats(player, location, next_move)
     print("""
     Which direction shall you take next? 
     - [north]
@@ -162,10 +191,14 @@ def gameplay(player: Character, location: Room, move: str, game_board: dict) -> 
     if entered_room == location:
         return player, entered_room
     if entered_room.name == "easter egg":
+        print("==" * 30)
         print("You found a dusty scroll on the wall...")
+        print("~~~" * 30)
         print("It reads: 'This game was crafted by: '")
         for c in ["conceived", "-","to", "-", "be", "-", "consumed"]:
             print(c)
+        print("~~~" * 30)
+        print("==" * 30)
         input("Press Enter to continue...")
     if entered_room.has_dragon:
         player, entered_room =_handle_dragon(player, game_board)
@@ -180,19 +213,19 @@ def gameplay(player: Character, location: Room, move: str, game_board: dict) -> 
 if __name__ == "__main__":
     rooms = {
         "main hall": Room("main hall",{"north": "north hall", "south": "south hall", "east": "east hall", "west": "west hall"}),
-        "north hall": Room("north hall", {"south": "main hall", "west": "dragon's lair"}, item="gold"),
-        "east hall": Room("east hall", {"north": "north east hall", "south": "south east hall", "west": "main hall"}, item="gold"),
-        "south hall": Room("south hall", {"north": "main hall"}, item="gold"),
-        "west hall": Room("west hall", {"east": "main hall"}, item="gold"),
-        "north east hall": Room("north east hall", {"south": "east hall", "west": "secret passage"}, item="gold"),
-        "south east hall": Room("south east hall", {"north": "east hall"}, item="gold"),
-        "secret passage": Room("secret passage", {"west": "dragon's lair", "east": "north east hall"}, item="potion"),
-        "dragon's lair": Room("dragon's lair", {}, has_dragon=True),
+        "north hall": Room("north hall", {"south": "main hall", "west": "dragon's lair"}, item= "gold"),
+        "east hall": Room("east hall", {"north": "north east hall", "south": "south east hall", "west": "main hall"}, item= "gold"),
+        "south hall": Room("south hall", {"north": "main hall"}, item= "gold"),
+        "west hall": Room("west hall", {"east": "main hall"}, item= "gold"),
+        "north east hall": Room("north east hall", {"south": "east hall", "west": "secret passage"}, item= "gold"),
+        "south east hall": Room("south east hall", {"north": "east hall"}, item= "gold"),
+        "secret passage": Room("secret passage", {"west": "dragon's lair", "east": "north east hall"}, item= "potion"),
+        "dragon's lair": Room("dragon's lair", {}, has_dragon= True),
         "easter egg": Room("easter egg", {"north": "main hall", "south": "main hall", "east": "main hall", "west": "main hall"})
     }
     active_player = (Character("player1"))
     active_location = rooms["main hall"]
     active_player = intro(active_player)
     while True:
-        active_player, players_move = player_input(active_player)
+        active_player, players_move = player_input(active_player, active_location, next_move= "To be determined")
         active_player, active_location = gameplay(active_player, active_location, players_move, rooms)
